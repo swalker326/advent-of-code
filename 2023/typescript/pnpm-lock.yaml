@@ -14,6 +14,12 @@ importers:
         specifier: ^20.10.1
         version: 20.10.1
 
+  days/2:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.10.1
+        version: 20.10.1
+
 packages:
 
   /@types/node@20.10.1:
