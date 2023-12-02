@@ -1,0 +1,15 @@
+{
+  "name": "day-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "watch": "bun --watch index.ts"
+  },
+  "keywords": [],
+  "author": "shaneCodes",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.10.1"
+  }
+}
