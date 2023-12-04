@@ -1,41 +1,80 @@
 import { readFileSync } from "fs";
 
+type Game = {
+  gameNumber: number;
+  draws: number[];
+  winningNumbers: number[];
+};
+
 const init = () => {
   const file = readFileSync("./source.txt", "utf8");
-  const winningTotal = file.split("\n").reduce((total, line) => {
-    const split = line.split(":");
-    const gameInfo = split[0].split(" ");
-    let [_, cardNumber] = gameInfo;
-    const [winning, draw] = split[1].split("|");
-    // console.log(winning, draw);
-    const drawnNumbers = draw
-      .split(" ")
-      .map((num) => Number(num.trim()))
-      .filter((num) => num !== 0);
+  const lines = file.split("\n");
+  const games = [] as Game[];
+  //Get the game draws and winning numbers
+  for (let line of lines) {
+    const lineSplit = line.split(":");
+    const gameMeta = lineSplit[0];
+    const gameNumber = gameMeta.match(/\d+/g);
+    // const gameInfo =
+    const [winningNumbers, draws] = lineSplit[1].split("|").reduce(
+      (acc, current, index) => {
+        switch (index) {
+          case 0:
+            acc[0] = current.split(" ").reduce((acc, current) => {
+              if (current !== "" && current !== " ") {
+                acc.push(parseInt(current));
+              }
+              return acc;
+            }, [] as number[]);
+            break;
+          case 1:
+            acc[1] = current.split(" ").reduce((acc, current) => {
+              if (current !== "" && current !== " ") {
+                acc.push(parseInt(current));
+              }
+              return acc;
+            }, [] as number[]);
+        }
+        return acc;
+      },
+      [[], []] as [number[], number[]]
+    );
 
-    const winningNumbers = winning
-      .split(" ")
-      .map((num) => Number(num.trim()))
-      .filter((num) => num !== 0);
-
-    function calculateWinners(
-      drawnNumbers: number[],
-      winningNumbers: number[]
-    ) {
-      // Filter out the winning numbers
-      const winners = drawnNumbers.filter((num) =>
-        winningNumbers.includes(num)
-      );
-
-      const total = winners.length > 0 ? Math.pow(2, winners.length - 1) : 0;
-
-      return { total, winners };
+    games.push({
+      gameNumber: parseInt(gameNumber![0]),
+      draws,
+      winningNumbers
+    });
+  }
+  let gameCount = 0;
+  let checkgames = true;
+  // games.forEach((g, i) => console.log(g.gameNumber, i));
+  while (checkgames) {
+    const gamesToCheck = games;
+    for (let game of gamesToCheck) {
+      let gamesToAdd = 0;
+      const { draws, winningNumbers } = game;
+      // console.log(draws, winningNumbers);
+      draws.forEach((d) => {
+        if (winningNumbers.includes(d)) {
+          gameCount++;
+          gamesToAdd++;
+        }
+      });
+      // console.log(game);
+      // console.log(`adding games for game ${game.gameNumber}: ${gamesToAdd} `);
+      for (let i = 0; i < gamesToAdd; i++) {
+        // console.log("adding game: ", game.gameNumber + (i + 1));
+        const gameToAdd = games.find(
+          (g) => g.gameNumber === game.gameNumber + (i + 1)
+        );
+        gamesToCheck.push(gameToAdd!);
+      }
     }
-    const drawWinners = calculateWinners(drawnNumbers, winningNumbers);
-    console.log(cardNumber, drawWinners);
-    return drawWinners.total + total;
-  }, 0);
-  console.log(winningTotal);
+    console.log("Done!");
+    console.log(gamesToCheck.length);
+    checkgames = false;
+  }
 };
 
 init();
